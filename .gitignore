@@ -1,0 +1,27 @@
+# dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# production
+/dist
+
+# environment
+.env
+.env.*
+!.env.example
+
+# testing
+/coverage
+
+# misc
+.DS_Store
+*.tsbuildinfo
+
+# logs
+logs
+*.log
+npm-debug.log*
+
+# prisma
+prisma/migrations/
