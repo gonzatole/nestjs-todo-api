@@ -1,196 +1,196 @@
 # NestJS To-Do API
 
-A production-ready REST API for task management, built with **NestJS**, **PostgreSQL** (Prisma ORM), and **Redis** caching.
+API REST lista para producción para gestión de tareas, construida con **NestJS**, **PostgreSQL** (Prisma ORM) y caché con **Redis**.
 
-## Tech Stack
+## Stack Tecnológico
 
-| Layer | Technology |
+| Capa | Tecnología |
 |---|---|
 | Framework | NestJS 10 + TypeScript |
-| Database | PostgreSQL 16 (Prisma ORM) |
-| Cache | Redis 7 (cache-manager-redis-yet) |
-| Auth | JWT (passport-jwt) |
-| Validation | class-validator + class-transformer |
-| Docs | Swagger / OpenAPI |
+| Base de datos | PostgreSQL 16 (Prisma ORM) |
+| Caché | Redis 7 (cache-manager-redis-yet) |
+| Autenticación | JWT (passport-jwt) |
+| Validación | class-validator + class-transformer |
+| Documentación | Swagger / OpenAPI |
 | Tests | Jest |
 
-## Features
+## Funcionalidades
 
-- JWT authentication (register + login)
-- Full CRUD for tasks with ownership enforcement
-- Redis cache for `GET /tasks` with automatic invalidation on mutations
-- Pagination and optional status filtering
-- Structured logging interceptor (method / path / status / duration)
-- Consistent error responses via global exception filter
-- Swagger UI at `/api`
-- Unit tests for `TasksService`
-- Docker Compose for local infrastructure
+- Autenticación con JWT (registro + login)
+- CRUD completo de tareas con verificación de propiedad
+- Caché Redis para `GET /tasks` con invalidación automática al mutar datos
+- Paginación y filtro opcional por estado
+- Interceptor de logging estructurado (método / ruta / estado / duración)
+- Respuestas de error consistentes mediante filtro global de excepciones
+- Swagger UI en `/api`
+- Tests unitarios para `TasksService`
+- Docker Compose para infraestructura local
 
 ---
 
-## Getting Started
+## Inicio Rápido
 
-### Prerequisites
+### Requisitos Previos
 
 - [Node.js](https://nodejs.org/) >= 20
 - [Docker](https://www.docker.com/) + Docker Compose
 
-### 1. Clone the repository
+### 1. Clonar el repositorio
 
 ```bash
 git clone https://github.com/gonzatole/nestjs-todo-api.git
 cd nestjs-todo-api
 ```
 
-### 2. Configure environment
+### 2. Configurar variables de entorno
 
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` and set a strong `JWT_SECRET`. The defaults work for local development.
+Edita `.env` y define un `JWT_SECRET` seguro. Los valores por defecto funcionan para desarrollo local.
 
-### 3. Start infrastructure
+### 3. Levantar la infraestructura
 
 ```bash
 docker compose up -d
 ```
 
-This starts PostgreSQL on port `5432` and Redis on port `6379`.
+Esto inicia PostgreSQL en el puerto `5432` y Redis en el puerto `6379`.
 
-### 4. Install dependencies
+### 4. Instalar dependencias
 
 ```bash
 npm install
 ```
 
-### 5. Run database migrations
+### 5. Ejecutar migraciones de base de datos
 
 ```bash
 npx prisma migrate dev --name init
 ```
 
-### 6. Start the development server
+### 6. Iniciar el servidor de desarrollo
 
 ```bash
 npm run start:dev
 ```
 
-The API is now available at `http://localhost:3000`.  
-Swagger UI is available at `http://localhost:3000/api`.
+La API estará disponible en `http://localhost:3000`.  
+La documentación Swagger estará disponible en `http://localhost:3000/api`.
 
 ---
 
-## API Reference
+## Referencia de la API
 
-### Authentication
+### Autenticación
 
-| Method | Path | Description |
+| Método | Ruta | Descripción |
 |---|---|---|
-| POST | `/auth/register` | Register a new user, returns JWT |
-| POST | `/auth/login` | Login, returns JWT |
+| POST | `/auth/register` | Registrar un nuevo usuario, devuelve JWT |
+| POST | `/auth/login` | Iniciar sesión, devuelve JWT |
 
-### Tasks (requires `Authorization: Bearer <token>`)
+### Tareas (requiere `Authorization: Bearer <token>`)
 
-| Method | Path | Description |
+| Método | Ruta | Descripción |
 |---|---|---|
-| POST | `/tasks` | Create a new task |
-| GET | `/tasks` | List tasks (filter by status, paginate) |
-| PATCH | `/tasks/:id` | Update a task (owner only) |
-| DELETE | `/tasks/:id` | Delete a task (owner only) |
+| POST | `/tasks` | Crear una nueva tarea |
+| GET | `/tasks` | Listar tareas (filtrar por estado, paginar) |
+| PATCH | `/tasks/:id` | Actualizar una tarea (solo el dueño) |
+| DELETE | `/tasks/:id` | Eliminar una tarea (solo el dueño) |
 
-#### Query parameters for `GET /tasks`
+#### Parámetros de consulta para `GET /tasks`
 
-| Parameter | Type | Description |
+| Parámetro | Tipo | Descripción |
 |---|---|---|
-| `status` | `pending` \| `in_progress` \| `done` | Filter by status |
-| `page` | number (default: 1) | Page number |
-| `limit` | number (default: 10, max: 100) | Items per page |
+| `status` | `pending` \| `in_progress` \| `done` | Filtrar por estado |
+| `page` | número (por defecto: 1) | Número de página |
+| `limit` | número (por defecto: 10, máx: 100) | Elementos por página |
 
 ---
 
-## Example Usage
+## Ejemplos de Uso
 
 ```bash
-# Register
+# Registro
 curl -X POST http://localhost:3000/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"secret123"}'
+  -d '{"email":"usuario@ejemplo.com","password":"secret123"}'
 
 # Login
 TOKEN=$(curl -s -X POST http://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"secret123"}' | jq -r '.accessToken')
+  -d '{"email":"usuario@ejemplo.com","password":"secret123"}' | jq -r '.accessToken')
 
-# Create task
+# Crear tarea
 curl -X POST http://localhost:3000/tasks \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"title":"My first task","description":"Learn NestJS"}'
+  -d '{"title":"Mi primera tarea","description":"Aprender NestJS"}'
 
-# List tasks
+# Listar tareas
 curl http://localhost:3000/tasks \
   -H "Authorization: Bearer $TOKEN"
 
-# Filter by status + pagination
+# Filtrar por estado + paginación
 curl "http://localhost:3000/tasks?status=pending&page=1&limit=5" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 ---
 
-## Running Tests
+## Ejecutar Tests
 
 ```bash
-# Unit tests
+# Tests unitarios
 npm test
 
-# With coverage
+# Con cobertura
 npm run test:cov
 ```
 
 ---
 
-## Project Structure
+## Estructura del Proyecto
 
 ```
 src/
-├── auth/                  # Authentication module (JWT)
-│   ├── decorators/        # @CurrentUser() param decorator
+├── auth/                  # Módulo de autenticación (JWT)
+│   ├── decorators/        # Decorador de parámetro @CurrentUser()
 │   ├── dto/               # RegisterDto, LoginDto, AuthResponseDto
 │   ├── guards/            # JwtAuthGuard
 │   └── strategies/        # JwtStrategy
 ├── common/
-│   ├── filters/           # Global HttpExceptionFilter
+│   ├── filters/           # HttpExceptionFilter global
 │   └── interceptors/      # LoggingInterceptor
 ├── prisma/                # PrismaService + PrismaModule (global)
-└── tasks/                 # Tasks module
+└── tasks/                 # Módulo de tareas
     ├── dto/               # CreateTaskDto, UpdateTaskDto, TaskFilterDto, PaginatedTasksDto
-    ├── enums/             # TaskStatus enum
-    ├── tasks-cache.service.ts   # Redis cache logic
-    ├── tasks.service.ts         # Business logic
-    └── tasks.controller.ts      # HTTP handlers
+    ├── enums/             # Enum TaskStatus
+    ├── tasks-cache.service.ts   # Lógica de caché Redis
+    ├── tasks.service.ts         # Lógica de negocio
+    └── tasks.controller.ts      # Manejadores HTTP
 ```
 
 ---
 
-## Cache Strategy
+## Estrategia de Caché
 
-- **Read** (`GET /tasks`): checks Redis first; on miss, queries DB and stores the result.
-- **Key format**: `tasks:user:{userId}[:status:{status}]:page:{page}:limit:{limit}`
-- **Invalidation**: on every `POST`, `PATCH`, or `DELETE`, all keys matching `tasks:user:{userId}*` are deleted from Redis.
-- **TTL**: 5 minutes (configurable via `REDIS_TTL` env var in seconds).
+- **Lectura** (`GET /tasks`): consulta Redis primero; si no hay hit, consulta la BD y almacena el resultado.
+- **Formato de clave**: `tasks:user:{userId}[:status:{status}]:page:{page}:limit:{limit}`
+- **Invalidación**: en cada `POST`, `PATCH` o `DELETE`, se eliminan de Redis todas las claves que coincidan con `tasks:user:{userId}*`.
+- **TTL**: 5 minutos (configurable mediante la variable de entorno `REDIS_TTL` en segundos).
 
 ---
 
-## Environment Variables
+## Variables de Entorno
 
-| Variable | Default | Description |
+| Variable | Por defecto | Descripción |
 |---|---|---|
-| `PORT` | `3000` | HTTP port |
-| `DATABASE_URL` | — | PostgreSQL connection string |
-| `REDIS_HOST` | `localhost` | Redis host |
-| `REDIS_PORT` | `6379` | Redis port |
-| `REDIS_TTL` | `300` | Cache TTL in seconds |
-| `JWT_SECRET` | — | Secret for signing JWT tokens |
-| `JWT_EXPIRES_IN` | `7d` | JWT expiration |
+| `PORT` | `3000` | Puerto HTTP |
+| `DATABASE_URL` | — | Cadena de conexión a PostgreSQL |
+| `REDIS_HOST` | `localhost` | Host de Redis |
+| `REDIS_PORT` | `6379` | Puerto de Redis |
+| `REDIS_TTL` | `300` | TTL de caché en segundos |
+| `JWT_SECRET` | — | Secreto para firmar tokens JWT |
+| `JWT_EXPIRES_IN` | `7d` | Expiración del JWT |
